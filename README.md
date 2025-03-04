@@ -1,8 +1,5 @@
 ```
-npm install
-npm run dev
+pnpm install
+pnpm dev:node or pnpm dev:wrangler // change app export in index.ts accordingly
 ```
 
-```
-npm run deploy
-```
