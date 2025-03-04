@@ -86,9 +86,15 @@ app.get('/api/me', (c) => {
 //   openapi: { url: "/openapi.json" }
 // }))
 
-serve({
-  fetch: app.fetch,
-  port: 8787
-}, (info) => {
-  console.log(`Listening on http://localhost:${info.port}`)
-})
+//Node server
+// serve({
+//   fetch: app.fetch,
+//   port: 8787
+// }, (info) => {
+//   console.log(`Listening on http://localhost:${info.port}`)
+// })
+
+
+//Cloudflare Workers
+export default app;
+
