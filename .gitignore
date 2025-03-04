@@ -10,6 +10,8 @@ dist/
 .idea/workspace.xml
 .idea/usage.statistics.xml
 .idea/shelf
+pnpm-lock.yaml
+package-lock.json
 
 # deps
 node_modules/
