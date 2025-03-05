@@ -1,16 +1,19 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
-import { UserProfile, AuthenticatedUserInfo } from "./types";
-import { profileTemplate } from "./templates/profile";
+
+import { userInputSchema } from "./types";
 import { startTemplate } from "./templates/start";
+import { infoTemplate } from "./templates/info";
 // Middleware section
 import { basicAuth } from "hono/basic-auth";
-//import { createFiberplane } from "@fiberplane/hono"
-//import { createOpenAPISpec } from "@fiberplane/hono"
+import { createFiberplane } from "@fiberplane/hono"
+import { createOpenAPISpec } from "@fiberplane/hono"
+import { zValidator } from '@hono/zod-validator'
+
 
 const app = new Hono();
 
-// Auth middleware for /api/* endpoints
+//Auth middleware for /api/* endpoints
 app.use(
   "/api/start",
   basicAuth({
@@ -26,14 +29,7 @@ app.get("/", (c) => {
 
 // Explains the game
 app.get("/info", (c) => {
-  const userProfile: UserProfile = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: "https://i.pravatar.cc/300",
-    hobbies: ["reading", "hiking", "photography"],
-  };
-
-  return c.html(profileTemplate(userProfile));
+  return c.html(infoTemplate());
 });
 
 // Returns the HTML Form page
@@ -42,37 +38,41 @@ app.get("/api/start", (c) => {
 });
 
 // Generate and store image
-app.post("/api/generate", async (c) => {
-  const body = await c.req.json();
-  const userId = `AMS_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  console.log('Received request:', {
-    userId,
-    ...body
-  });
-  
-  return c.json({ 
-    userId,
-    success: true 
-  });
-});
+app.post("/api/generate", 
+  zValidator('json', userInputSchema),
+  async (c) => {
+    const data = c.req.valid('json');
+    const shortId = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const userId = `AMS_${data.name}_${shortId}`;
+    
+    console.log('Received request:', {
+      userId,
+      ...data
+    });
+    
+    return c.json({ 
+      userId,
+      success: true 
+    });
+  }
+);
 
 // OpenAPI specification
-// app.get("/openapi.json", c => {
-//   return c.json(createOpenAPISpec(app, {
-//     openapi: "3.0.0",
-//     info: {
-//       title: "Hono API",
-//       version: "1.0.0",
-//     },
-//   }))
-// })
+app.get("/openapi.json", c => {
+  return c.json(createOpenAPISpec(app, {
+    openapi: "3.0.0",
+    info: {
+      title: "Hono API",
+      version: "1.0.0",
+    },
+  }))
+})
 
-// // Mount Fiberplane explorer
-// app.use("/fp/*", createFiberplane({
-//   app,
-//   openapi: { url: "/openapi.json" }
-// }))
+// Mount Fiberplane explorer
+app.use("/fp/*", createFiberplane({
+  app,
+  openapi: { url: "/openapi.json" }
+}))
 
 //Node server
 // serve(
