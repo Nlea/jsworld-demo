@@ -8,10 +8,9 @@ import { galleryTemplate } from "./templates/gallery";
 // Middleware section
 import { basicAuth } from "hono/basic-auth";
 import { bearerAuth } from "hono/bearer-auth";
-import { createFiberplane } from "@fiberplane/hono"
-import { createOpenAPISpec } from "@fiberplane/hono"
-import { zValidator } from '@hono/zod-validator'
-
+import { createFiberplane } from "@fiberplane/hono";
+import { createOpenAPISpec } from "@fiberplane/hono";
+import { zValidator } from "@hono/zod-validator";
 
 interface CloudflareBindings {
   AI: Ai;
@@ -68,24 +67,32 @@ app.get("/api/start", (c) => {
 });
 
 // Generate and store image
-app.post("/api/generate",
-  zValidator('json', userInputSchema),
-  async (c) => {
-    const data = c.req.valid('json');
-    console.log(data);
-
+app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
+  const { name, location, activity, artStyle, colorScheme } =
+    c.req.valid("json");
+  let artStyplePrompt = "";
+  if (artStyle === "lowpoly") {
+    artStyplePrompt =
+      "The image is rendered in the distinctive low-poly style, using geometric triangular faces and angular shapes to create a modern, digital aesthetic.";
+  } else if (artStyle === "vangogh") {
+    artStyplePrompt =
+      "The image is rendered in the distinctive Van Gogh style, with bold, visible brushstrokes creating a sense of movement and energy throughout the composition.";
+  } else if (artStyle === "whiteboard") {
+    artStyplePrompt =
+      "The image is rendered in a clean whiteboard drawing style with simple lines and minimal shading.";
+  }
 
   try {
     // Use AI to generate image
     const prompt = `
-    Generate image for a Goose traveling in Amsterdam. The Goose is in front of ${data.location}, ${data.activity}. The image should have a ${data.colorScheme} color scheme. Generate the image in a ${data.artStyle} style.
+    A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose with its Heineken bottle against the swirling, emotional interpretation of Vondelpark's landscape elements, while maintaining the characteristic impasto technique, dramatic light contrasts, and rhythmic brushwork that defined Van Gogh's revolutionary approach to painting.
   `;
-  console.log(prompt);
+    console.log(prompt);
     const response = await c.env.AI.run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
       {
         prompt,
-      },
+      }
       // {
       //   gateway: {
       //     id: "",
@@ -97,28 +104,25 @@ app.post("/api/generate",
 
     // store in R2 bucket
     const timestamp = new Date().getTime();
-    const objectKey = `${data.name}-${timestamp}.png`;
+    const objectKey = `${name}-${timestamp}.png`;
     await c.env.BUCKET.put(objectKey, arrayBuffer);
-    
+
     // Insert into database and get the ID
     const result = await c.env.DB.prepare(
       "INSERT INTO gooseUser (username, location, activity, color, artstyle, thumbnail_key) VALUES (?, ?, ?, ?, ?, ?) RETURNING id"
     )
-      .bind(data.name, data.location, data.activity, data.colorScheme, data.artStyle, objectKey)
+      .bind(name, location, activity, colorScheme, artStyle, objectKey)
       .first();
-    
-    // Convert array buffer to base64 for sending to client
-    const base64Image = Buffer.from(arrayBuffer).toString('base64');
 
-    return c.json({ 
+    // Convert array buffer to base64 for sending to client
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
+
+    return c.json({
       success: true,
       data: {
-        id: result.id,
-        name: data.name,
-        image: `data:image/png;base64,${base64Image}`
-      }
+        image: `data:image/png;base64,${base64Image}`,
+      },
     });
-
   } catch (error) {
     console.log(error);
     return c.json({ error: "Failed to generate and store image" });
@@ -126,21 +130,26 @@ app.post("/api/generate",
 });
 
 // OpenAPI specification
-app.get("/openapi.json", c => {
-  return c.json(createOpenAPISpec(app, {
-    openapi: "3.0.0",
-    info: {
-      title: "Hono API",
-      version: "1.0.0",
-    },
-  }))
-})
+app.get("/openapi.json", (c) => {
+  return c.json(
+    createOpenAPISpec(app, {
+      openapi: "3.0.0",
+      info: {
+        title: "Hono API",
+        version: "1.0.0",
+      },
+    })
+  );
+});
 
 // Mount Fiberplane explorer
-app.use("/fp/*", createFiberplane({
-  app,
-  openapi: { url: "/openapi.json" }
-}))
+app.use(
+  "/fp/*",
+  createFiberplane({
+    app,
+    openapi: { url: "/openapi.json" },
+  })
+);
 
 //Node server
 // serve(

@@ -148,55 +148,17 @@ export const startTemplate = () => `
                     body: JSON.stringify(formData)
                 });
 
-                const data = await response.json();
-                const userIdDiv = document.getElementById('userId');
-                userIdDiv.style.display = 'block';
-                userIdDiv.innerHTML = \`<h3>Your Unique ID: \${data.userId}</h3>
-                                      <p>Keep this ID to reference your generated image later!</p>\`;
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while generating the image');
-            }
-        });
-
-        document.querySelector('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const submitButton = form.querySelector('button');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Generating...';
-
-            try {
-                const formData = {
-                    name: form.name.value,
-                    location: form.location.value,
-                    activity: form.activity.value,
-                    artStyle: form.artStyle.value,
-                    colorScheme: form.colorScheme.value
-                };
-
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
                 const result = await response.json();
-                
                 if (result.success) {
                     document.getElementById('result').style.display = 'block';
-                    document.getElementById('userInfo').textContent = 'Generated for (ID: result)';
+                    document.getElementById('userInfo').textContent = 'Generated image';
                     document.getElementById('generatedImage').src = result.data.image;
                 } else {
                     alert('Failed to generate image: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Error generating image: ' + error.message);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Generate Image';
+                console.error('Error:', error);
+                alert('An error occurred while generating the image');
             }
         });
     </script>
