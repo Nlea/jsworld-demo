@@ -36,3 +36,12 @@ export interface AuthenticatedUserInfo {
     paymentMethod: string;
   };
 }
+
+export interface CardData {
+  username: string;
+  location: string;
+  activity: string;
+  color: string;
+  thumbnail_key: string;
+  base64: string;
+}
