@@ -1,19 +1,73 @@
-export const startTemplate = () => `
+export const startTemplate = (token: string) => `
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Amsterdam Image Generator</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goose World Traveler - Generate Image</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
+        :root {
+        --primary-color: #ff9e00;
+        --secondary-color: #4ecdc4;
+        --accent-color: #ff6b6b;
+        --dark-color: #292f36;
+        --light-color: #f7fff7;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Nunito", "Quicksand", "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: var(--light-color);
+        color: var(--dark-color);
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF9E00' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      .goose-logo {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
         .form-group {
             margin-bottom: 20px;
         }
+
         select, input {
             width: 300px;
             padding: 10px;
@@ -22,8 +76,9 @@ export const startTemplate = () => `
             border-radius: 4px;
             font-size: 16px;
         }
+
         button {
-            background-color: #FF6600;
+            background-color: var(--primary-color);
             color: white;
             padding: 12px 24px;
             border: none;
@@ -32,9 +87,11 @@ export const startTemplate = () => `
             font-size: 16px;
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #E65C00;
         }
+
         #userId {
             margin-top: 20px;
             padding: 15px;
@@ -43,24 +100,108 @@ export const startTemplate = () => `
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: none;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-        }
         label {
             font-weight: bold;
             color: #555;
         }
+
         .error {
             color: #FF0000;
             font-size: 14px;
             margin-top: 5px;
             display: none;
         }
+            .floating-goose {
+        position: absolute;
+        animation: float 15s infinite ease-in-out;
+        z-index: 1;
+        opacity: 0.8;
+        font-size: 2rem;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+          transform: translate(100px, 50px) rotate(10deg);
+        }
+        50% {
+          transform: translate(200px, 0) rotate(0deg);
+        }
+        75% {
+          transform: translate(100px, -50px) rotate(-10deg);
+        }
+        100% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+      }
+    footer {
+        background-color: var(--dark-color);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        margin-top: 50px;
+      }
+      .footer-links {
+        margin-top: 15px;
+      }
+
+      .footer-links a {
+        color: var(--light-color);
+        text-decoration: none;
+        margin: 0 15px;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      @media (max-width: 1024px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+      }
+
+      #generatorForm {
+        max-width: 500px;
+      }
+
+      #result {
+        position: sticky;
+        top: 2rem;
+      }
     </style>
 </head>
 <body>
-    <h1>Amsterdam Scene Generator</h1>
+    <header>
+      <div class="floating-goose" style="top: 20px; left: 20%">🪽</div>
+      <div class="floating-goose" style="top: 40px; right: 20%; animation-delay: -5s">🪽</div>
+      <div class="floating-goose" style="top: 30px; right: 10%; animation-delay: -5s">🪽</div>
+      <div class="floating-goose" style="top: 50px; left: 20%; animation-delay: -5s">🪽</div>
+      <div class="floating-goose" style="top: 10px; right: 30%; animation-delay: -5s">🪽</div>
+
+      <div class="header-content">
+        <div class="goose-logo">
+          <h1>Goose World Traveler</h1>
+        </div>
+        <p>
+          Explore AI-generated images of our adventurous goose traveling around
+          the world!
+        </p>
+      </div>
+    </header>
+
+    <main>
+    <div class="container">
     <form id="generatorForm">
         <div class="form-group">
             <label for="name">Your Name:</label><br>
@@ -108,11 +249,21 @@ export const startTemplate = () => `
         </div>
         <button type="submit">Generate Image</button>
     </form>
-    <div id="result" style="display: none; margin-top: 2rem; text-align: center;">
+    <div id="result" style="display: none;">
         <h2>Your Generated Image</h2>
         <p id="userInfo" style="margin-bottom: 1rem;"></p>
         <img id="generatedImage" style="max-width: 512px; width: 100%; height: auto;" />
     </div>
+    </div>
+    </main>
+    <footer style="position: absolute; bottom: 0; width: 100%;">
+      <p>🪽 Goose World Traveler © 2025 | AI-Generated Adventures</p>
+      <div class="footer-links">
+        <a href="/info">Info</a>
+        <a href="/privacy">GitHub</a>
+        <a href="/terms">Hono</a>
+      </div>
+    </footer>
     <script>
         const nameInput = document.getElementById('name');
         const nameError = document.getElementById('nameError');
@@ -124,10 +275,16 @@ export const startTemplate = () => `
 
         document.getElementById('generatorForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const submitButton = e.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Generating...';
             
             const name = document.getElementById('name').value;
             if (name.length === 0 || name.length > 10) {
                 nameError.style.display = 'block';
+                submitButton.disabled = false;
+        submitButton.textContent = 'Generate Image';
                 return;
             }
 
@@ -143,7 +300,8 @@ export const startTemplate = () => `
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ${token}'
                     },
                     body: JSON.stringify(formData)
                 });
@@ -159,7 +317,9 @@ export const startTemplate = () => `
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while generating the image');
-            }
+            } finally {
+             submitButton.disabled = false;
+        submitButton.textContent = 'Generate Image';}
         });
     </script>
 </body>

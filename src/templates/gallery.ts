@@ -191,6 +191,21 @@ export const galleryTemplate = (images: CardData[]): string =>
           transform: translate(0, 0) rotate(0deg);
         }
       }
+
+      .footer-links {
+        margin-top: 15px;
+      }
+
+      .footer-links a {
+        color: var(--light-color);
+        text-decoration: none;
+        margin: 0 15px;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-color);
+      }
     </style>
   </head>
   <body>
@@ -211,7 +226,7 @@ export const galleryTemplate = (images: CardData[]): string =>
         </p>
         <button
           class="generate-btn"
-          onclick="window.location.href='generate.html'"
+          onclick="window.location.href='api/start'"
         >
           Generate New Adventure
         </button>
@@ -259,6 +274,11 @@ export const galleryTemplate = (images: CardData[]): string =>
 
     <footer>
       <p>🪽 Goose World Traveler © 2025 | AI-Generated Adventures</p>
+      <div class="footer-links">
+        <a href="/info">Info</a>
+        <a href="/privacy">GitHub</a>
+        <a href="/terms">Hono</a>
+      </div>
     </footer>
   </body>
 </html>

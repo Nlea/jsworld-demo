@@ -30,10 +30,10 @@ app.use(
   })
 );
 
-// app.on("POST", "/api/generate", async (c, next) => {
-//   const bearer = bearerAuth({ token: c.env.TOKEN });
-//   return bearer(c, next);
-// });
+app.on("POST", "/api/generate", async (c, next) => {
+  const bearer = bearerAuth({ token: c.env.TOKEN });
+  return bearer(c, next);
+});
 
 // index page - gallery
 app.get("/", async (c) => {
@@ -63,7 +63,8 @@ app.get("/info", (c) => {
 
 // Returns the HTML Form page
 app.get("/api/start", (c) => {
-  return c.html(startTemplate());
+  const token = c.env.TOKEN;
+  return c.html(startTemplate(token));
 });
 
 // Generate and store image
@@ -85,20 +86,20 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
   try {
     // Use AI to generate image
     const prompt = `
-    A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose with its Heineken bottle against the swirling, emotional interpretation of Vondelpark's landscape elements, while maintaining the characteristic impasto technique, dramatic light contrasts, and rhythmic brushwork that defined Van Gogh's revolutionary approach to painting.
+    A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose, emotional interpretation of ${location}'s landscape elements, while maintaining the characteristic ${artStyle} technique.
   `;
-    console.log(prompt);
+
     const response = await c.env.AI.run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
       {
         prompt,
+      },
+      {
+        gateway: {
+          id: "goose-world-traveler",
+          skipCache: true,
+        },
       }
-      // {
-      //   gateway: {
-      //     id: "",
-      //     skipCache: true,
-      //   },
-      // }
     );
     const arrayBuffer = await new Response(response).arrayBuffer();
 
