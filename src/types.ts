@@ -14,5 +14,15 @@ export const userInputSchema = z.object({
     colorScheme: z.enum(['dutch-classic', 'tulip-fields', 'black-and-white'])
 });
 
+
+export interface CardData {
+  username: string;
+  location: string;
+  activity: string;
+  color: string;
+  thumbnail_key: string;
+  base64: string;
+}
+
 // Derive the type from the schema
 export type UserInput = z.infer<typeof userInputSchema>;
