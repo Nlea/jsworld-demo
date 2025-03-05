@@ -31,10 +31,10 @@ app.use(
   })
 );
 
-app.on("POST", "/api/generate", async (c, next) => {
-  const bearer = bearerAuth({ token: c.env.TOKEN });
-  return bearer(c, next);
-});
+// app.on("POST", "/api/generate", async (c, next) => {
+//   const bearer = bearerAuth({ token: c.env.TOKEN });
+//   return bearer(c, next);
+// });
 
 // index page - gallery
 app.get("/", async (c) => {
@@ -72,23 +72,26 @@ app.post("/api/generate",
   zValidator('json', userInputSchema),
   async (c) => {
     const data = c.req.valid('json');
+    console.log(data);
+
 
   try {
     // Use AI to generate image
     const prompt = `
-    Generate image for a Goose traveling in Amsterdam. The Goose is at ${data.location}, doing ${data.activity}. The image should have a ${data.colorScheme} color scheme. Generate the image in a ${data.artStyle} style.
+    Generate image for a Goose traveling in Amsterdam. The Goose is in front of ${data.location}, ${data.activity}. The image should have a ${data.colorScheme} color scheme. Generate the image in a ${data.artStyle} style.
   `;
+  console.log(prompt);
     const response = await c.env.AI.run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
       {
         prompt,
       },
-      {
-        gateway: {
-          id: "",
-          skipCache: true,
-        },
-      }
+      // {
+      //   gateway: {
+      //     id: "",
+      //     skipCache: true,
+      //   },
+      // }
     );
     const arrayBuffer = await new Response(response).arrayBuffer();
 
@@ -96,18 +99,26 @@ app.post("/api/generate",
     const timestamp = new Date().getTime();
     const objectKey = `${data.name}-${timestamp}.png`;
     await c.env.BUCKET.put(objectKey, arrayBuffer);
-    // Insert into database
-    await c.env.DB.prepare(
-      "INSERT INTO gooseUser (username, location, activity, color, artstyle, thumbnail_key) VALUES (?, ?, ?, ?, ?, ?)"
+    
+    // Insert into database and get the ID
+    const result = await c.env.DB.prepare(
+      "INSERT INTO gooseUser (username, location, activity, color, artstyle, thumbnail_key) VALUES (?, ?, ?, ?, ?, ?) RETURNING id"
     )
       .bind(data.name, data.location, data.activity, data.colorScheme, data.artStyle, objectKey)
-      .run();
+      .first();
+    
+    // Convert array buffer to base64 for sending to client
+    const base64Image = Buffer.from(arrayBuffer).toString('base64');
 
-    return new Response(arrayBuffer, {
-      headers: {
-        "content-type": "image/png",
-      },
+    return c.json({ 
+      success: true,
+      data: {
+        id: result.id,
+        name: data.name,
+        image: `data:image/png;base64,${base64Image}`
+      }
     });
+
   } catch (error) {
     console.log(error);
     return c.json({ error: "Failed to generate and store image" });

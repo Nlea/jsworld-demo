@@ -83,9 +83,9 @@ export const startTemplate = () => `
             <select id="activity" name="activity" required>
                 <option value="">Select an activity...</option>
                 <option value="cycling">Riding a Bike</option>
-                <option value="boat-tour">Canal Boat Tour</option>
-                <option value="drinking-heineken">Enjoying a Heineken</option>
-                <option value="eating-stroopwafel">Eating Stroopwafels</option>
+                <option value="doing a boat tour">Canal Boat Tour</option>
+                <option value="drinking a heineken">Enjoying a Heineken</option>
+                <option value="eating a stroopwafel">Eating Stroopwafels</option>
             </select>
         </div>
         <div class="form-group">
@@ -101,15 +101,18 @@ export const startTemplate = () => `
             <label for="colorScheme">Choose a Color Scheme:</label><br>
             <select id="colorScheme" name="colorScheme" required>
                 <option value="">Select a color scheme...</option>
-                <option value="dutch-classic">Dutch Classic (Orange, Blue, White)</option>
-                <option value="tulip-fields">Tulip Fields (Red, Yellow, Pink, Green)</option>
-                <option value="black-and-white">Black and White</option>
+                <option value="dutch classic with orange, blue and white">Dutch Classic (Orange, Blue, White)</option>
+                <option value="tulip fields with red, yellow, pink and green">Tulip Fields (Red, Yellow, Pink, Green)</option>
+                <option value="black and white">Black and White</option>
             </select>
         </div>
         <button type="submit">Generate Image</button>
     </form>
-    <div id="userId"></div>
-
+    <div id="result" style="display: none; margin-top: 2rem; text-align: center;">
+        <h2>Your Generated Image</h2>
+        <p id="userInfo" style="margin-bottom: 1rem;"></p>
+        <img id="generatedImage" style="max-width: 512px; width: 100%; height: auto;" />
+    </div>
     <script>
         const nameInput = document.getElementById('name');
         const nameError = document.getElementById('nameError');
@@ -153,6 +156,47 @@ export const startTemplate = () => `
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while generating the image');
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const submitButton = form.querySelector('button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Generating...';
+
+            try {
+                const formData = {
+                    name: form.name.value,
+                    location: form.location.value,
+                    activity: form.activity.value,
+                    artStyle: form.artStyle.value,
+                    colorScheme: form.colorScheme.value
+                };
+
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('userInfo').textContent = 'Generated for (ID: result)';
+                    document.getElementById('generatedImage').src = result.data.image;
+                } else {
+                    alert('Failed to generate image: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error generating image: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Generate Image';
             }
         });
     </script>

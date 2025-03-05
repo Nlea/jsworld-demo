@@ -9,9 +9,9 @@ export interface User {
 export const userInputSchema = z.object({
     name: z.string().min(1).max(10),
     location: z.enum(['windmills', 'keukenhof', 'rijksmuseum', 'vondelpark', 'tulip-fields']),
-    activity: z.enum(['cycling', 'boat-tour', 'drinking-heineken', 'eating-stroopwafel']),
+    activity: z.enum(['cycling', 'doing a boat tour', 'drinking a heineken', 'eating a stroopwafel']),
     artStyle: z.enum(['whiteboard', 'vangogh', 'lowpoly']),
-    colorScheme: z.enum(['dutch-classic', 'tulip-fields', 'black-and-white'])
+    colorScheme: z.enum(['dutch classic with orange, blue and white', 'tulip fields with red, yellow, pink and green', 'black and white'])
 });
 
 
