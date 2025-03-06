@@ -242,8 +242,8 @@ export const startTemplate = (token: string) => `
             <label for="colorScheme">Choose a Color Scheme:</label><br>
             <select id="colorScheme" name="colorScheme" required>
                 <option value="">Select a color scheme...</option>
-                <option value="dutch classic with orange, blue and white">Dutch Classic (Orange, Blue, White)</option>
-                <option value="tulip fields with red, yellow, pink and green">Tulip Fields (Red, Yellow, Pink, Green)</option>
+                <option value="orange, blue and white">Dutch Classic (Orange, Blue, White)</option>
+                <option value="red, yellow, pink and green">Tulip Fields (Red, Yellow, Pink, Green)</option>
                 <option value="black and white">Black and White</option>
             </select>
         </div>
@@ -256,8 +256,8 @@ export const startTemplate = (token: string) => `
     </div>
     </div>
     </main>
-    <footer style="position: absolute; bottom: 0; width: 100%;">
-      <p>🪽 Goose World Traveler © 2025 | AI-Generated Adventures</p>
+    <footer>
+      <p>🪽 Goose World Traveler 2025 | AI-Generated Adventures</p>
       <div class="footer-links">
         <a href="/info">Info</a>
         <a href="/privacy">GitHub</a>

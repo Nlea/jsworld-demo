@@ -23,7 +23,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 //Auth middleware for /api/* endpoints
 app.use(
-  "/api/start",
+  "/start",
   basicAuth({
     username: "hono",
     password: "acoolproject",
@@ -62,7 +62,7 @@ app.get("/info", (c) => {
 });
 
 // Returns the HTML Form page
-app.get("/api/start", (c) => {
+app.get("/start", (c) => {
   const token = c.env.TOKEN;
   return c.html(startTemplate(token));
 });
@@ -85,10 +85,13 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
 
   try {
     // Use AI to generate image
-    const prompt = `
-    A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose, emotional interpretation of ${location}'s landscape elements, while maintaining the characteristic ${artStyle} technique.
-  `;
-
+  //   const prompt = `
+  //   A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose, emotional interpretation of ${location}'s landscape elements, while maintaining the characteristic ${artStyle} technique. 
+  // `;
+  const prompt =
+  `A highly detailed image of a goose actively ${activity} in front of ${location}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects ${location}, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood. ` 
+  
+console.log(prompt);
     const response = await c.env.AI.run(
       "@cf/bytedance/stable-diffusion-xl-lightning",
       {

@@ -11,7 +11,7 @@ export const userInputSchema = z.object({
     location: z.enum(['windmills', 'keukenhof', 'rijksmuseum', 'vondelpark', 'tulip-fields']),
     activity: z.enum(['cycling', 'doing a boat tour', 'drinking a heineken', 'eating a stroopwafel']),
     artStyle: z.enum(['whiteboard', 'vangogh', 'lowpoly']),
-    colorScheme: z.enum(['dutch classic with orange, blue and white', 'tulip fields with red, yellow, pink and green', 'black and white'])
+    colorScheme: z.enum(['orange, blue and white', 'red, yellow, pink and green', 'black and white'])
 });
 
 
