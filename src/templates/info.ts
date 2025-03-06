@@ -185,7 +185,7 @@ export const infoTemplate = (): string => `
         </p>
         <button
           class="generate-btn"
-          onclick="window.location.href='api/start'"
+          onclick="window.location.href='start'"
         >
           Generate New Adventure
         </button>
@@ -229,8 +229,8 @@ export const infoTemplate = (): string => `
       <p>🪽 Goose World Traveler © 2025 | AI-Generated Adventures</p>
       <div class="footer-links">
         <a href="/info">Info</a>
-        <a href="/privacy">GitHub</a>
-        <a href="/terms">Hono</a>
+        <a href="https://github.com/Nlea/jsworld-demo" target="_blank">GitHub</a>
+        <a href="https://hono.dev" target="_blank">Hono</a>
       </div>
     </footer>
 </body>

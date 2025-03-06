@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { serve } from "@hono/node-server";
 
 import { userInputSchema, CardData } from "./types";
 import { startTemplate } from "./templates/start";
@@ -21,7 +20,7 @@ interface CloudflareBindings {
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-//Auth middleware for /api/* endpoints
+//Auth middleware for /start
 app.use(
   "/start",
   basicAuth({
@@ -37,14 +36,18 @@ app.on("POST", "/api/generate", async (c, next) => {
 
 // index page - gallery
 app.get("/", async (c) => {
+  // Get all the data from the database
   const { results } = await c.env.DB.prepare(
     "SELECT * FROM gooseUser ORDER BY created_at DESC"
   ).all();
-  const resultArray = results as Partial<CardData>[];
+
+  const resultArray = results as unknown as CardData[];
+
   // get the image from R2 bucket
   const cardData = await Promise.all(
     resultArray.map(async (row) => {
-      const image = await c.env.BUCKET.get(row.thumbnail_key);
+      const image =
+        row && row.thumbnail_key && (await c.env.BUCKET.get(row.thumbnail_key));
       const arrayBuffer = image && (await image.arrayBuffer());
       const base64 = Buffer.from(arrayBuffer).toString("base64");
       return {
@@ -71,6 +74,8 @@ app.get("/start", (c) => {
 app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
   const { name, location, activity, artStyle, colorScheme } =
     c.req.valid("json");
+
+  // create a prompt based on the user input
   let artStyplePrompt = "";
   if (artStyle === "lowpoly") {
     artStyplePrompt =
@@ -85,15 +90,10 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
 
   try {
     // Use AI to generate image
-  //   const prompt = `
-  //   A captivating scene at ${location}, where a goose is ${activity}. ${artStyplePrompt}. The color palette focuses ${colorScheme}. The scene balances foreground details of the goose, emotional interpretation of ${location}'s landscape elements, while maintaining the characteristic ${artStyle} technique. 
-  // `;
-  const prompt =
-  `A highly detailed image of a goose actively ${activity} in front of ${location}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects ${location}, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood. ` 
-  
-console.log(prompt);
+    const prompt = `A highly detailed image of a goose actively ${activity} in front of ${location}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects ${location}, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood. `;
+
     const response = await c.env.AI.run(
-      "@cf/bytedance/stable-diffusion-xl-lightning",
+      "@cf/black-forest-labs/flux-1-schnell",
       {
         prompt,
       },
@@ -104,7 +104,9 @@ console.log(prompt);
         },
       }
     );
-    const arrayBuffer = await new Response(response).arrayBuffer();
+
+    // Convert the image to a buffer
+    const arrayBuffer = Buffer.from(response.image, "base64");
 
     // store in R2 bucket
     const timestamp = new Date().getTime();
@@ -118,13 +120,10 @@ console.log(prompt);
       .bind(name, location, activity, colorScheme, artStyle, objectKey)
       .first();
 
-    // Convert array buffer to base64 for sending to client
-    const base64Image = Buffer.from(arrayBuffer).toString("base64");
-
     return c.json({
       success: true,
       data: {
-        image: `data:image/png;base64,${base64Image}`,
+        image: `data:image/png;base64,${response.image}`,
       },
     });
   } catch (error) {
@@ -137,7 +136,6 @@ console.log(prompt);
 app.get("/openapi.json", (c) => {
   return c.json(
     createOpenAPISpec(app, {
-      openapi: "3.0.0",
       info: {
         title: "Hono API",
         version: "1.0.0",
@@ -155,16 +153,4 @@ app.use(
   })
 );
 
-//Node server
-// serve(
-//   {
-//     fetch: app.fetch,
-//     port: 8787,
-//   },
-//   (info) => {
-//     console.log(`Listening on http://localhost:${info.port}`);
-//   }
-// );
-
-//Cloudflare Workers
 export default app;

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export interface User {
   name: string;
@@ -7,13 +7,27 @@ export interface User {
 }
 
 export const userInputSchema = z.object({
-    name: z.string().min(1).max(10),
-    location: z.enum(['windmills', 'keukenhof', 'rijksmuseum', 'vondelpark', 'tulip-fields']),
-    activity: z.enum(['cycling', 'doing a boat tour', 'drinking a heineken', 'eating a stroopwafel']),
-    artStyle: z.enum(['whiteboard', 'vangogh', 'lowpoly']),
-    colorScheme: z.enum(['orange, blue and white', 'red, yellow, pink and green', 'black and white'])
+  name: z.string().min(1).max(10),
+  location: z.enum([
+    "windmills",
+    "keukenhof",
+    "rijksmuseum",
+    "vondelpark",
+    "tulip-fields",
+  ]),
+  activity: z.enum([
+    "cycling",
+    "doing a boat tour",
+    "drinking a beer",
+    "eating a waffel",
+  ]),
+  artStyle: z.enum(["whiteboard", "vangogh", "lowpoly"]),
+  colorScheme: z.enum([
+    "orange, blue and white",
+    "red, yellow, pink and green",
+    "black and white",
+  ]),
 });
-
 
 export interface CardData {
   username: string;
@@ -22,6 +36,7 @@ export interface CardData {
   color: string;
   thumbnail_key: string;
   base64: string;
+  artStyle: string;
 }
 
 // Derive the type from the schema

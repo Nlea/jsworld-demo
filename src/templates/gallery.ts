@@ -226,7 +226,7 @@ export const galleryTemplate = (images: CardData[]): string =>
         </p>
         <button
           class="generate-btn"
-          onclick="window.location.href='api/start'"
+          onclick="window.location.href='start'"
         >
           Generate New Adventure
         </button>
@@ -248,7 +248,7 @@ export const galleryTemplate = (images: CardData[]): string =>
           <div class="card-content">
             <div class="parameters">
               <div class="parameter">
-                <span class="parameter-name">Locatoin:</span>
+                <span class="parameter-name">Location:</span>
                 <span>${image.location}</span>
               </div>
               <div class="parameter">
@@ -257,7 +257,11 @@ export const galleryTemplate = (images: CardData[]): string =>
               </div>
               <div class="parameter">
                 <span class="parameter-name">Color Scheme:</span>
-                <span>${image.color}</span>
+                <span style="text-align:right;">${image.color}</span>
+              </div>
+              <div class="parameter">
+                <span class="parameter-name">Art Style:</span>
+                <span>${image.artStyle}</span>
               </div>
               <div class="parameter">
                 <span class="parameter-name">Creator:</span>
@@ -276,8 +280,8 @@ export const galleryTemplate = (images: CardData[]): string =>
       <p>🪽 Goose World Traveler © 2025 | AI-Generated Adventures</p>
       <div class="footer-links">
         <a href="/info">Info</a>
-        <a href="/privacy">GitHub</a>
-        <a href="/terms">Hono</a>
+        <a href="https://github.com/Nlea/jsworld-demo" target="_blank">GitHub</a>
+        <a href="https://hono.dev" target="_blank">Hono</a>
       </div>
     </footer>
   </body>

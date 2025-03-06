@@ -179,6 +179,28 @@ export const startTemplate = (token: string) => `
         position: sticky;
         top: 2rem;
       }
+        .generate-btn {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .generate-btn:hover {
+        background-color: #ff5252;
+        transform: translateY(-2px);
+      }
+
+      .generate-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+      }
     </style>
 </head>
 <body>
@@ -197,6 +219,12 @@ export const startTemplate = (token: string) => `
           Explore AI-generated images of our adventurous goose traveling around
           the world!
         </p>
+        <button
+          class="generate-btn"
+          onclick="window.location.href='/'"
+        >
+          Check the Adventures
+        </button>
       </div>
     </header>
 
@@ -225,8 +253,8 @@ export const startTemplate = (token: string) => `
                 <option value="">Select an activity...</option>
                 <option value="cycling">Riding a Bike</option>
                 <option value="doing a boat tour">Canal Boat Tour</option>
-                <option value="drinking a heineken">Enjoying a Heineken</option>
-                <option value="eating a stroopwafel">Eating Stroopwafels</option>
+                <option value="drinking a beer">Enjoying a Heineken</option>
+                <option value="eating a waffel">Eating Stroopwafels</option>
             </select>
         </div>
         <div class="form-group">
@@ -256,12 +284,12 @@ export const startTemplate = (token: string) => `
     </div>
     </div>
     </main>
-    <footer>
+    <footer style="position: absolute; bottom: 0; width: 100%;">
       <p>🪽 Goose World Traveler 2025 | AI-Generated Adventures</p>
       <div class="footer-links">
         <a href="/info">Info</a>
-        <a href="/privacy">GitHub</a>
-        <a href="/terms">Hono</a>
+        <a href="https://github.com/Nlea/jsworld-demo" target="_blank">GitHub</a>
+        <a href="https://hono.dev" target="_blank">Hono</a>
       </div>
     </footer>
     <script>
