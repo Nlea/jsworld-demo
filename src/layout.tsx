@@ -4,6 +4,7 @@ interface LayoutData {
   subtitle: string;
   buttonText: string;
   buttonNav: string;
+  footerBottom?: boolean;
   children: any;
 }
 
@@ -259,7 +260,11 @@ export const Layout = (props: LayoutData) => html`
       </header>
 
       <main>${props.children}</main>
-      <footer style="position: absolute; bottom: 0; width: 100%;">
+      <footer
+        style="${props.footerBottom
+          ? "position: absolute; bottom: 0; width: 100%;"
+          : ""}"
+      >
         <p>🪽 Goose World Traveler 2025 | AI-Generated Adventures</p>
         <div class="footer-links">
           <a href="/info">Info</a>

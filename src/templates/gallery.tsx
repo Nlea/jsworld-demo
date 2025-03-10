@@ -29,12 +29,6 @@ const GalleryTemplate: FC<{ data: CardData[] }> = ({ data }) => {
   const cardContent = css`
     padding: 20px;
   `;
-  const location = css`
-    font-size: 1.4rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-  `;
   const parameters = css`
     background-color: #f5f5f5;
     padding: 15px;

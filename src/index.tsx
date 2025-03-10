@@ -1,23 +1,26 @@
 import { Hono } from "hono";
 
-import { userInputSchema, CardData } from "./types";
+import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 
 import { Layout } from "./layout";
 import StartTemplate from "./templates/start";
 import InfoTemplate from "./templates/info";
 import GalleryTemplate from "./templates/gallery";
+
 // Middleware section
 import { basicAuth } from "hono/basic-auth";
-import { bearerAuth } from "hono/bearer-auth";
 import { createFiberplane } from "@fiberplane/hono";
 import { createOpenAPISpec } from "@fiberplane/hono";
 import { zValidator } from "@hono/zod-validator";
+
+import { userInputSchema, CardData } from "./types";
 
 interface CloudflareBindings {
   AI: Ai;
   DB: D1Database;
   BUCKET: R2Bucket;
   TOKEN: string;
+  SECRET: string;
 }
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
@@ -88,6 +91,7 @@ app.get("/info", (c) => {
       buttonText="Generate New Adventure"
       buttonNav="start"
       subtitle="How it works"
+      footerBottom
     >
       <InfoTemplate />
     </Layout>
@@ -95,21 +99,36 @@ app.get("/info", (c) => {
 });
 
 // Returns the HTML Form page
-app.get("/start", (c) => {
+app.get("/start", async (c) => {
   const token = c.env.TOKEN;
+  const secret = c.env.SECRET;
+  await setSignedCookie(c, "auth-token", token, secret, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 60 * 2,
+  });
+
   return c.html(
     <Layout
       buttonText="Back to Gallery"
       buttonNav="/"
       subtitle="Generate New Adventure"
+      footerBottom
     >
-      <StartTemplate token={token} />
+      <StartTemplate />
     </Layout>
   );
 });
 
 // Generate and store image
 app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
+  const secret = c.env.SECRET;
+  const token = await getSignedCookie(c, secret, "auth-token");
+  if (!token || Object.keys(token).length === 0) {
+    return c.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  deleteCookie(c, "auth-token");
   const { name, location, activity, artStyle, colorScheme } =
     c.req.valid("form");
 
