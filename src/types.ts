@@ -35,8 +35,8 @@ export interface CardData {
   activity: string;
   color: string;
   thumbnail_key: string;
-  base64: string;
   artStyle: string;
+  imageUrl: string;
 }
 
 // Derive the type from the schema

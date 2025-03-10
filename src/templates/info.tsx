@@ -1,5 +1,5 @@
 import type { FC } from "hono/jsx";
-import { css, cx, keyframes, Style } from "hono/css";
+import { css, Style } from "hono/css";
 
 const InfoTemplate: FC = () => {
   const featureCard = css`
