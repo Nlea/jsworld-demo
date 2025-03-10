@@ -1,38 +1,43 @@
-export interface UserProfile {
+import { z } from "zod";
+
+export interface User {
   name: string;
-  email: string;
   image: string;
-  hobbies: string[];
+  id: string;
 }
 
-export interface AuthenticatedUserInfo {
-  id: string;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  address: {
-    street: string;
-    city: string;
-    country: string;
-    postalCode: string;
-  };
-  accountDetails: {
-    createdAt: string;
-    lastLogin: string;
-    subscriptionTier: string;
-    isEmailVerified: boolean;
-    twoFactorEnabled: boolean;
-  };
-  preferences: {
-    language: string;
-    timezone: string;
-    notifications: boolean;
-    newsletter: boolean;
-  };
-  billing: {
-    plan: string;
-    nextBillingDate: string;
-    paymentMethod: string;
-  };
+export const userInputSchema = z.object({
+  name: z.string().min(1).max(10),
+  location: z.enum([
+    "windmills",
+    "keukenhof",
+    "rijksmuseum",
+    "vondelpark",
+    "tulip-fields",
+  ]),
+  activity: z.enum([
+    "cycling",
+    "doing a boat tour",
+    "drinking a beer",
+    "eating a waffel",
+  ]),
+  artStyle: z.enum(["whiteboard", "vangogh", "lowpoly"]),
+  colorScheme: z.enum([
+    "orange, blue and white",
+    "red, yellow, pink and green",
+    "black and white",
+  ]),
+});
+
+export interface CardData {
+  username: string;
+  location: string;
+  activity: string;
+  color: string;
+  thumbnail_key: string;
+  artStyle: string;
+  imageUrl: string;
 }
+
+// Derive the type from the schema
+export type UserInput = z.infer<typeof userInputSchema>;
