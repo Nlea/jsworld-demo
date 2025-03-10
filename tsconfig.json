@@ -6,6 +6,8 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": [
+      "DOM",
+      "DOM.Iterable",
       "ESNext"
     ],
     "types": [

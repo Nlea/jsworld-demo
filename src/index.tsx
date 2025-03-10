@@ -1,9 +1,11 @@
 import { Hono } from "hono";
 
 import { userInputSchema, CardData } from "./types";
-import { startTemplate } from "./templates/start";
-import { infoTemplate } from "./templates/info";
-import { galleryTemplate } from "./templates/gallery";
+
+import { Layout } from "./layout";
+import StartTemplate from "./templates/start";
+import InfoTemplate from "./templates/info";
+import GalleryTemplate from "./templates/gallery";
 // Middleware section
 import { basicAuth } from "hono/basic-auth";
 import { bearerAuth } from "hono/bearer-auth";
@@ -29,11 +31,6 @@ app.use(
   })
 );
 
-app.on("POST", "/api/generate", async (c, next) => {
-  const bearer = bearerAuth({ token: c.env.TOKEN });
-  return bearer(c, next);
-});
-
 // index page - gallery
 app.get("/", async (c) => {
   // Get all the data from the database
@@ -43,37 +40,78 @@ app.get("/", async (c) => {
 
   const resultArray = results as unknown as CardData[];
 
-  // get the image from R2 bucket
   const cardData = await Promise.all(
     resultArray.map(async (row) => {
-      const image =
-        row && row.thumbnail_key && (await c.env.BUCKET.get(row.thumbnail_key));
-      const arrayBuffer = image && (await image.arrayBuffer());
-      const base64 = Buffer.from(arrayBuffer).toString("base64");
-      return {
-        ...row,
-        base64,
-      };
+      try {
+        if (!row?.thumbnail_key) {
+          return { ...row, imageUrl: "" };
+        }
+
+        const image = await c.env.BUCKET.get(row.thumbnail_key);
+        if (!image) {
+          return { ...row, imageUrl: "" };
+        }
+
+        const buffer = await image.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        const base64 = btoa(
+          Array.from(bytes)
+            .map((byte) => String.fromCharCode(byte))
+            .join("")
+        );
+
+        return {
+          ...row,
+          imageUrl: `data:image/png;base64,${base64}`,
+        };
+      } catch (err) {
+        console.error(`Error processing image for ${row.thumbnail_key}:`, err);
+        return { ...row, imageUrl: "" };
+      }
     })
   );
-  return c.html(galleryTemplate(cardData));
+  return c.html(
+    <Layout
+      buttonText="Generate New Adventure"
+      buttonNav="start"
+      subtitle="Gallery"
+    >
+      <GalleryTemplate data={cardData} />
+    </Layout>
+  );
 });
 
 // Explains the game
 app.get("/info", (c) => {
-  return c.html(infoTemplate());
+  return c.html(
+    <Layout
+      buttonText="Generate New Adventure"
+      buttonNav="start"
+      subtitle="How it works"
+    >
+      <InfoTemplate />
+    </Layout>
+  );
 });
 
 // Returns the HTML Form page
 app.get("/start", (c) => {
   const token = c.env.TOKEN;
-  return c.html(startTemplate(token));
+  return c.html(
+    <Layout
+      buttonText="Back to Gallery"
+      buttonNav="/"
+      subtitle="Generate New Adventure"
+    >
+      <StartTemplate token={token} />
+    </Layout>
+  );
 });
 
 // Generate and store image
-app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
+app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
   const { name, location, activity, artStyle, colorScheme } =
-    c.req.valid("json");
+    c.req.valid("form");
 
   // create a prompt based on the user input
   let artStyplePrompt = "";
@@ -105,13 +143,18 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
       }
     );
 
-    // Convert the image to a buffer
-    const arrayBuffer = Buffer.from(response.image, "base64");
+    if (!response.image) {
+      throw new Error("No image generated");
+    }
+
+    const binaryString = atob(response.image);
+    // Create byte representation
+    const img = Uint8Array.from(binaryString, (m) => m.codePointAt(0) ?? 0);
 
     // store in R2 bucket
     const timestamp = new Date().getTime();
     const objectKey = `${name}-${timestamp}.png`;
-    await c.env.BUCKET.put(objectKey, arrayBuffer);
+    await c.env.BUCKET.put(objectKey, img);
 
     // Insert into database and get the ID
     const result = await c.env.DB.prepare(
@@ -120,10 +163,9 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
       .bind(name, location, activity, colorScheme, artStyle, objectKey)
       .first();
 
-    return c.json({
-      success: true,
-      data: {
-        image: `data:image/png;base64,${response.image}`,
+    return new Response(img, {
+      headers: {
+        "Content-Type": "image/jpeg",
       },
     });
   } catch (error) {
