@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 
 import { userInputSchema, CardData } from "./types";
+
+import { Layout } from "./layout";
 import { startTemplate } from "./templates/start";
-import { infoTemplate } from "./templates/info";
+import InfoTemplate from "./templates/info";
 import { galleryTemplate } from "./templates/gallery";
 // Middleware section
 import { basicAuth } from "hono/basic-auth";
@@ -48,11 +50,14 @@ app.get("/", async (c) => {
     resultArray.map(async (row) => {
       const image =
         row && row.thumbnail_key && (await c.env.BUCKET.get(row.thumbnail_key));
-      const arrayBuffer = image && (await image.arrayBuffer());
-      const base64 = Buffer.from(arrayBuffer).toString("base64");
+      const imageUrl = image
+        ? `data:image/png;base64,${await image
+            .arrayBuffer()
+            .then((buf) => btoa(String.fromCharCode(...new Uint8Array(buf))))}`
+        : "";
       return {
         ...row,
-        base64,
+        imageUrl,
       };
     })
   );
@@ -61,7 +66,16 @@ app.get("/", async (c) => {
 
 // Explains the game
 app.get("/info", (c) => {
-  return c.html(infoTemplate());
+  // const page = () => (
+  //   <Layout>
+  //   </Layout>
+  // )
+  return c.html(
+    // <Layout>
+    <div></div>
+    // <InfoTemplate>
+    // </Layout>
+  );
 });
 
 // Returns the HTML Form page
@@ -105,13 +119,20 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
       }
     );
 
-    // Convert the image to a buffer
-    const arrayBuffer = Buffer.from(response.image, "base64");
+    if (!response.image) {
+      throw new Error("No image generated");
+    }
+
+    const binaryString = atob(response.image);
+    // Create byte representation
+    const img = Uint8Array.from(binaryString, (m) => m.codePointAt(0) ?? 0);
+    console.log("Image generated");
 
     // store in R2 bucket
     const timestamp = new Date().getTime();
     const objectKey = `${name}-${timestamp}.png`;
-    await c.env.BUCKET.put(objectKey, arrayBuffer);
+    await c.env.BUCKET.put(objectKey, img);
+    console.log("Image stored in R2 bucket");
 
     // Insert into database and get the ID
     const result = await c.env.DB.prepare(
@@ -119,11 +140,11 @@ app.post("/api/generate", zValidator("json", userInputSchema), async (c) => {
     )
       .bind(name, location, activity, colorScheme, artStyle, objectKey)
       .first();
+    console.log("Data stored in database");
 
-    return c.json({
-      success: true,
-      data: {
-        image: `data:image/png;base64,${response.image}`,
+    return new Response(img, {
+      headers: {
+        "Content-Type": "image/jpeg",
       },
     });
   } catch (error) {

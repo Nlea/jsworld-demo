@@ -240,9 +240,7 @@ export const galleryTemplate = (images: CardData[]): string =>
           (image) => `
         <div class="image-card">
           <div class="image-container">
-            <img src="data:image/png;base64,${image.base64.replace(
-              /^data:image\/(png|jpeg|jpg);base64,/,
-              ""
+            <img src="${image.imageUrl}"
             )}" alt="Goose in ${image.location}" />
           </div>
           <div class="card-content">

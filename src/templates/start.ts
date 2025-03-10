@@ -334,11 +334,13 @@ export const startTemplate = (token: string) => `
                     body: JSON.stringify(formData)
                 });
 
-                const result = await response.json();
-                if (result.success) {
+                // const result = await response.json();
+                if (response.ok) {
+                const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
                     document.getElementById('result').style.display = 'block';
                     document.getElementById('userInfo').textContent = 'Generated image';
-                    document.getElementById('generatedImage').src = result.data.image;
+                    document.getElementById('generatedImage').src = imageUrl;
                 } else {
                     alert('Failed to generate image: ' + (result.error || 'Unknown error'));
                 }
