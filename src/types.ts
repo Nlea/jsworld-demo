@@ -8,18 +8,16 @@ export interface User {
 
 export const userInputSchema = z.object({
   name: z.string().min(1).max(10),
-  location: z.enum([
-    "windmills",
-    "keukenhof",
-    "rijksmuseum",
-    "vondelpark",
-    "tulip-fields",
-  ]),
+
   activity: z.enum([
-    "cycling",
+    "cycling in amsterdam",
     "doing a boat tour",
     "drinking a beer",
     "eating a waffel",
+    "visiting windmills",
+    "visiting rijksmuseum",
+    "walking in vondelpark",
+    "visiting tulip fields",
   ]),
   artStyle: z.enum(["whiteboard", "vangogh", "lowpoly"]),
   colorScheme: z.enum([

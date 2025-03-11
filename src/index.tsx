@@ -129,7 +129,7 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
     return c.json({ error: "Unauthorized" }, { status: 401 });
   }
   deleteCookie(c, "auth-token");
-  const { name, location, activity, artStyle, colorScheme } =
+  const { name, activity, artStyle, colorScheme } =
     c.req.valid("form");
 
   // create a prompt based on the user input
@@ -147,7 +147,7 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
 
   try {
     // Use AI to generate image
-    const prompt = `A highly detailed image of a goose actively ${activity} in front of ${location}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects ${location}, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood. `;
+    const prompt = `A highly detailed image of a goose actively ${activity}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects Amsterdam, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood. `;
 
     const response = await c.env.AI.run(
       "@cf/black-forest-labs/flux-1-schnell",
