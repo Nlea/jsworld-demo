@@ -2,9 +2,8 @@
   "type": "module",
   "name": "demo-app",
   "scripts": {
-    "dev:wrangler": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "dev:node": "tsx watch src/index.ts"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
     "@fiberplane/hono": "^0.4.4",
