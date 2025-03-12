@@ -27,26 +27,20 @@ const StartTemplate: FC = () => {
           </div>
         </div>
         <div class={formGroup}>
-          <label for="location">Choose a Location:</label>
-          <br />
-          <select id="location" name="location" required>
-            <option value="">Select a location...</option>
-            <option value="windmills">Windmills at Zaanse Schans</option>
-            <option value="keukenhof">Keukenhof Tulip Gardens</option>
-            <option value="rijksmuseum">Rijksmuseum</option>
-            <option value="vondelpark">Vondelpark</option>
-            <option value="tulip-fields">Tulip Fields</option>
-          </select>
-        </div>
-        <div class={formGroup}>
           <label for="activity">Choose an Activity:</label>
           <br />
           <select id="activity" name="activity" required>
             <option value="">Select an activity...</option>
-            <option value="cycling">Riding a Bike</option>
+            <option value="cycling in Amsterdam">Riding a Bike</option>
+            <option value="walking in Vondelpark">Walking in Vondelpark</option>
             <option value="doing a boat tour">Canal Boat Tour</option>
-            <option value="drinking a beer">Enjoying a Heineken</option>
-            <option value="eating a waffel">Eating Stroopwafels</option>
+            <option value="drinking a Heineken">Enjoying a Heineken</option>
+            <option value="eating a waffle">Eating Stroopwafels</option>
+            <option value="visiting windmills">
+              Visiting Windmills at Zaanse Schans
+            </option>
+            <option value="visiting Rijksmuseum">Visiting Rijksmuseum</option>
+            <option value="visiting tulip fields">Visiting Tulip Fields</option>
           </select>
         </div>
         <div class={formGroup}>

@@ -8,18 +8,15 @@ export interface User {
 
 export const userInputSchema = z.object({
   name: z.string().min(1).max(10),
-  location: z.enum([
-    "windmills",
-    "keukenhof",
-    "rijksmuseum",
-    "vondelpark",
-    "tulip-fields",
-  ]),
   activity: z.enum([
-    "cycling",
+    "cycling in Amsterdam",
+    "walking in Vondelpark",
     "doing a boat tour",
-    "drinking a beer",
-    "eating a waffel",
+    "drinking a Heineken",
+    "eating a waffle",
+    "visiting windmills",
+    "visiting Rijksmuseum",
+    "visiting tulip fields",
   ]),
   artStyle: z.enum(["whiteboard", "vangogh", "lowpoly"]),
   colorScheme: z.enum([
@@ -31,7 +28,6 @@ export const userInputSchema = z.object({
 
 export interface CardData {
   username: string;
-  location: string;
   activity: string;
   color: string;
   thumbnail_key: string;

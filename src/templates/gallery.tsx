@@ -53,16 +53,12 @@ const GalleryTemplate: FC<{ data: CardData[] }> = ({ data }) => {
               <div class={imageContainer}>
                 <img
                   src={d.imageUrl}
-                  alt={`Goose in ${d.location}`}
+                  alt={`Goose ${d.activity}`}
                   class={image}
                 />
               </div>
               <div class={cardContent}>
                 <div class={parameters}>
-                  <div class={parameter}>
-                    <span class={parameterName}>Location:</span>
-                    <span>{d.location}</span>
-                  </div>
                   <div class={parameter}>
                     <span class={parameterName}>Activity:</span>
                     <span>{d.activity}</span>
