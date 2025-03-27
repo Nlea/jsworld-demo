@@ -9,20 +9,20 @@ export interface User {
 export const userInputSchema = z.object({
   name: z.string().min(1).max(10),
   activity: z.enum([
-    "cycling in Amsterdam",
-    "walking in Vondelpark",
-    "doing a boat tour",
-    "drinking a Heineken",
-    "eating a waffle",
-    "visiting windmills",
-    "visiting Rijksmuseum",
-    "visiting tulip fields",
+    "go clubbing",
+    "walking in Tiergarten",
+    "watching a movie in an outdoor theater",
+    "going to a fleamarket",
+    "eating a curry wurst",
+    "visiting brandenburg gate",
+    "eating a kebab",
+    "visiting berlin wall"
   ]),
-  artStyle: z.enum(["whiteboard", "vangogh", "lowpoly"]),
+  artStyle: z.enum(["streetart", "bauhaus", "retro photo booth"]),
   colorScheme: z.enum([
-    "orange, blue and white",
-    "red, yellow, pink and green",
-    "black and white",
+    "deep night blue, neon purple, electric green, metallic silver",
+    "grass green, soft sky blue, dandelion yellow",
+    "black and white"
   ]),
 });
 

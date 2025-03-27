@@ -132,32 +132,32 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
 
   // create a prompt based on the user input
   let artStyplePrompt = "";
-  if (artStyle === "lowpoly") {
+  if (artStyle === "retro photo booth") {
     artStyplePrompt =
-      "The image is rendered in the distinctive low-poly style, using geometric triangular faces and angular shapes to create a modern, digital aesthetic.";
-  } else if (artStyle === "vangogh") {
+      "Vintage photobooth style, nostalgic essence of 1980s Berlin, with grainy film texture, slightly faded colors, and soft focus, showing four black and white or sepia-toned photo strips, scratched edges, authentic analog film look with visible grain and imperfections.";
+  } else if (artStyle === "streetart") {
     artStyplePrompt =
-      "The image is rendered in the distinctive Van Gogh style, with bold, visible brushstrokes creating a sense of movement and energy throughout the composition.";
-  } else if (artStyle === "whiteboard") {
+      "Vibrant urban street art mural with dynamic spray-painted elements, bold typographic designs, and layered mixed-media textures, featuring a complex composition that blends abstract and figurative styles, with sharp urban energy, dripping paint effects, and a gritty metropolitan background of weathered concrete or brick wall, utilizing a bold color palette and stark black outlines, incorporating street culture symbolism and rebellious graphic elements";
+  } else if (artStyle === "bauhaus") {
     artStyplePrompt =
-      "The image is rendered in a clean whiteboard drawing style with simple lines and minimal shading.";
+      "Minimalist geometric composition with primary colors red, blue, and yellow, featuring clean angular shapes, sans-serif typography, and a balanced asymmetrical design that embodies the Bauhaus principles of form following function, with sharp lines and simplified architectural elements.";
   }
 
   try {
     // Use AI to generate image
-    const prompt = `A highly detailed image of a goose actively ${activity}. The goose is clearly engaged in the action, with a dynamic posture and realistic interaction with any objects involved. The scene is composed with a strong foreground focus on the goose, ensuring its motion and intent are unmistakable. The background reflects Amsterdam, complementing the main action without overpowering it. Rendered in ${artStyle}. ${artStyplePrompt}. The image captures the characteristic techniques of this style, emphasizing texture, color, and form. The color palette focuses on ${colorScheme}, ensuring visual harmony and a distinct artistic mood.`;
+    const prompt = `A image of a goose actively ${activity}. The scene is composed with a foreground focus. The background reflects Berlin, complementing the main action without overpowering it. Full picture is in cartoon style rendered in ${artStyle}. ${artStyplePrompt}. The color palette focuses on ${colorScheme}.`;
 
     const response = await c.env.AI.run(
       "@cf/black-forest-labs/flux-1-schnell",
       {
         prompt,
       },
-      {
-        gateway: {
-          id: "goose-world-traveler",
-          skipCache: true,
-        },
-      }
+      // {
+      //   gateway: {
+      //     id: "goose-world-traveler",
+      //     skipCache: true,
+      //   },
+      // }
     );
 
     if (!response.image) {

@@ -31,16 +31,16 @@ const StartTemplate: FC = () => {
           <br />
           <select id="activity" name="activity" required>
             <option value="">Select an activity...</option>
-            <option value="cycling in Amsterdam">Riding a Bike</option>
-            <option value="walking in Vondelpark">Walking in Vondelpark</option>
-            <option value="doing a boat tour">Canal Boat Tour</option>
-            <option value="drinking a Heineken">Enjoying a Heineken</option>
-            <option value="eating a waffle">Eating Stroopwafels</option>
-            <option value="visiting windmills">
-              Visiting Windmills at Zaanse Schans
+            <option value="go clubbing">Go Clubbing</option>
+            <option value="walking in Tiergarten">Walking in Tiergarten</option>
+            <option value="watching a movie in an outdoor theater">Watching a Movie in an Outdoor Theater</option>
+            <option value="going to a fleamarket">Going to a Flea Market</option>
+            <option value="eating a curry wurst">Eating a Curry Wurst</option>
+            <option value="visiting brandenburg gate">
+              Visiting Brandenburg Gate
             </option>
-            <option value="visiting Rijksmuseum">Visiting Rijksmuseum</option>
-            <option value="visiting tulip fields">Visiting Tulip Fields</option>
+            <option value="eating a kebab">Eating a Kebab</option>
+            <option value="visiting berlin wall">Visiting Berlin Wall</option>
           </select>
         </div>
         <div class={formGroup}>
@@ -48,9 +48,9 @@ const StartTemplate: FC = () => {
           <br />
           <select id="artStyle" name="artStyle" required>
             <option value="">Select an art style...</option>
-            <option value="whiteboard">Whiteboard Drawing</option>
-            <option value="vangogh">Van Gogh Style</option>
-            <option value="lowpoly">Low Poly</option>
+            <option value="streetart">Street Art/ Graffiti</option>
+            <option value="bauhaus">Bauhaus Style</option>
+            <option value="retro photo booth">Retro Photo Booth</option>
           </select>
         </div>
         <div class={formGroup}>
@@ -58,11 +58,11 @@ const StartTemplate: FC = () => {
           <br />
           <select id="colorScheme" name="colorScheme" required>
             <option value="">Select a color scheme...</option>
-            <option value="orange, blue and white">
-              Dutch Classic (Orange, Blue, White)
+            <option value="deep night blue, neon purple, electric green, metallic silver">
+              Techno/ Nightlife
             </option>
-            <option value="red, yellow, pink and green">
-              Tulip Fields (Red, Yellow, Pink, Green)
+            <option value="grass green, soft sky blue, dandelion yellow">
+              Sunday Brunch
             </option>
             <option value="black and white">Black and White</option>
           </select>
