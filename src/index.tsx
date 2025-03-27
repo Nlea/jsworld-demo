@@ -134,10 +134,10 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
   let artStyplePrompt = "";
   if (artStyle === "retro photo booth") {
     artStyplePrompt =
-      "Vintage photobooth scene capturing the raw, nostalgic essence of 1980s Berlin, with grainy film texture, slightly faded colors, and soft focus, showing four black and white or sepia-toned photo strips featuring young people with alternative punk or new wave style, vintage booth with metallic interior, scratched edges, and a gritty urban backdrop hinting at Berlin's divided city era, authentic analog film look with visible grain and imperfections.";
+      "Vintage photobooth style, nostalgic essence of 1980s Berlin, with grainy film texture, slightly faded colors, and soft focus, showing four black and white or sepia-toned photo strips, scratched edges, authentic analog film look with visible grain and imperfections.";
   } else if (artStyle === "streetart") {
     artStyplePrompt =
-      "Vibrant urban street art mural with dynamic spray-painted elements, bold typographic designs, and layered mixed-media textures, featuring a complex composition that blends abstract and figurative styles, with sharp urban energy, dripping paint effects, and a gritty metropolitan background of weathered concrete or brick wall, utilizing a bold color palette of electric blues, vivid oranges, deep purples, and stark black outlines, incorporating street culture symbolism and rebellious graphic elements";
+      "Vibrant urban street art mural with dynamic spray-painted elements, bold typographic designs, and layered mixed-media textures, featuring a complex composition that blends abstract and figurative styles, with sharp urban energy, dripping paint effects, and a gritty metropolitan background of weathered concrete or brick wall, utilizing a bold color palette and stark black outlines, incorporating street culture symbolism and rebellious graphic elements";
   } else if (artStyle === "bauhaus") {
     artStyplePrompt =
       "Minimalist geometric composition with primary colors red, blue, and yellow, featuring clean angular shapes, sans-serif typography, and a balanced asymmetrical design that embodies the Bauhaus principles of form following function, with sharp lines and simplified architectural elements.";
