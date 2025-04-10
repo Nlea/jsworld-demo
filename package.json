@@ -2,7 +2,7 @@
   "type": "module",
   "name": "demo-app",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --remote",
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {

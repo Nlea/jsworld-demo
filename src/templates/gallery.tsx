@@ -2,7 +2,11 @@ import { CardData } from "../types";
 import type { FC } from "hono/jsx";
 import { css, Style } from "hono/css";
 
-const GalleryTemplate: FC<{ data: CardData[] }> = ({ data }) => {
+const GalleryTemplate: FC<{
+  data: CardData[];
+  currentPage: number;
+  totalPages: number;
+}> = ({ data, currentPage, totalPages }) => {
   const gallery = css`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -43,6 +47,38 @@ const GalleryTemplate: FC<{ data: CardData[] }> = ({ data }) => {
   const parameterName = css`
     font-weight: bold;
   `;
+  const pagination = css`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px 0;
+  `;
+
+  const pageButton = css`
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+    &:disabled {
+      background-color: #eee;
+      cursor: not-allowed;
+    }
+  `;
+
+  const activePage = css`
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    &:hover {
+      background-color: #0056b3;
+    }
+  `;
+
   return (
     <>
       <Style />
@@ -80,6 +116,28 @@ const GalleryTemplate: FC<{ data: CardData[] }> = ({ data }) => {
             </div>
           );
         })}
+      </div>
+      <div class={pagination}>
+        <a
+          href={`/?page=${currentPage - 1}`}
+          class={pageButton}
+          style={{
+            pointerEvents: currentPage <= 1 ? "none" : "auto",
+            opacity: currentPage <= 1 ? "0.5" : "1",
+          }}
+        >
+          Previous
+        </a>
+        <a
+          href={`/?page=${currentPage + 1}`}
+          class={pageButton}
+          style={{
+            pointerEvents: currentPage >= totalPages ? "none" : "auto",
+            opacity: currentPage >= totalPages ? "0.5" : "1",
+          }}
+        >
+          Next
+        </a>
       </div>
     </>
   );

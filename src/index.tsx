@@ -36,10 +36,20 @@ app.use(
 
 // index page - gallery
 app.get("/", async (c) => {
-  // Get all the data from the database
+  const page = parseInt(c.req.query("page") || "1");
+  const perPage = 12;
+  const offset = (page - 1) * perPage;
+
+  // Get paginated data and total count
   const { results } = await c.env.DB.prepare(
-    "SELECT * FROM gooseUser ORDER BY created_at DESC"
-  ).all();
+    "SELECT * FROM gooseUser ORDER BY created_at DESC LIMIT ? OFFSET ?"
+  )
+    .bind(perPage, offset)
+    .all();
+
+  const { total } = (await c.env.DB.prepare(
+    "SELECT COUNT(*) as total FROM gooseUser"
+  ).first()) as { total: number };
 
   const resultArray = results as unknown as CardData[];
 
@@ -73,13 +83,19 @@ app.get("/", async (c) => {
       }
     })
   );
+  const totalPages = Math.ceil(total / perPage);
+
   return c.html(
     <Layout
       buttonText="Generate New Adventure"
       buttonNav="start"
       subtitle="Gallery"
     >
-      <GalleryTemplate data={cardData} />
+      <GalleryTemplate
+        data={cardData}
+        currentPage={page}
+        totalPages={totalPages}
+      />
     </Layout>
   );
 });
@@ -151,7 +167,8 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
       "@cf/black-forest-labs/flux-1-schnell",
       {
         prompt,
-      },
+        seed: Math.floor(Math.random() * 8) + 1,
+      }
       // {
       //   gateway: {
       //     id: "goose-world-traveler",
