@@ -168,13 +168,13 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
       {
         prompt,
         seed: Math.floor(Math.random() * 8) + 1,
+      },
+      {
+        gateway: {
+          id: "goose-world-traveler",
+          skipCache: true,
+        },
       }
-      // {
-      //   gateway: {
-      //     id: "goose-world-traveler",
-      //     skipCache: true,
-      //   },
-      // }
     );
 
     if (!response.image) {
