@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-
+import { GoogleGenAI } from "@google/genai";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 
 import { Layout } from "./layout";
@@ -21,6 +21,9 @@ interface CloudflareBindings {
   BUCKET: R2Bucket;
   TOKEN: string;
   SECRET: string;
+  GEMINI_API_KEY: string;
+  CLOUDFLARE_ACCOUNT_ID: string;
+  GATEWAY_NAME: string;
 }
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
@@ -144,7 +147,14 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
     return c.json({ error: "Unauthorized" }, { status: 401 });
   }
   deleteCookie(c, "auth-token");
+  console.log();
   const { name, activity, artStyle, colorScheme } = c.req.valid("form");
+  const ai = new GoogleGenAI({
+    apiKey: c.env.GEMINI_API_KEY,
+    httpOptions: {
+      baseUrl: `https://gateway.ai.cloudflare.com/v1/${c.env.CLOUDFLARE_ACCOUNT_ID}/${c.env.GATEWAY_NAME}/google-ai-studio`,
+    },
+  });
 
   // create a prompt based on the user input
   let artStyplePrompt = "";
@@ -163,32 +173,36 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
     // Use AI to generate image
     const prompt = `A image of a goose actively ${activity}. The scene is composed with a foreground focus. The background reflects Berlin, complementing the main action without overpowering it. Full picture is in cartoon style rendered in ${artStyle}. ${artStyplePrompt}. The color palette focuses on ${colorScheme}.`;
 
-    const response = await c.env.AI.run(
-      "@cf/black-forest-labs/flux-1-schnell",
-      {
-        prompt,
-        seed: Math.floor(Math.random() * 8) + 1,
+    const response = await ai.models.generateContentStream({
+      model: "gemini-2.5-flash-image-preview",
+      contents: prompt,
+      config: {
+        responseModalities: ["image"],
       },
-      {
-        gateway: {
-          id: "goose-world-traveler",
-          skipCache: true,
-        },
+    });
+
+    let objectKey = "";
+    let buffer;
+
+    for await (const chunk of response) {
+      if (
+        !chunk.candidates ||
+        !chunk.candidates[0].content ||
+        !chunk.candidates[0].content.parts
+      ) {
+        continue;
       }
-    );
-
-    if (!response.image) {
-      throw new Error("No image generated");
+      if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
+        const timestamp = new Date().getTime();
+        objectKey = `${name}-${timestamp}.png`;
+        const inlineData = chunk.candidates[0].content.parts[0].inlineData;
+        buffer = Buffer.from(inlineData.data || "", "base64");
+        await c.env.BUCKET.put(objectKey, buffer);
+        console.log(`Image saved as ${objectKey}`);
+      } else {
+        console.log(chunk.text);
+      }
     }
-
-    const binaryString = atob(response.image);
-    // Create byte representation
-    const img = Uint8Array.from(binaryString, (m) => m.codePointAt(0) ?? 0);
-
-    // store in R2 bucket
-    const timestamp = new Date().getTime();
-    const objectKey = `${name}-${timestamp}.png`;
-    await c.env.BUCKET.put(objectKey, img);
 
     // Insert into database and get the ID
     await c.env.DB.prepare(
@@ -197,7 +211,7 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
       .bind(name, activity, colorScheme, artStyle, objectKey)
       .first();
 
-    return new Response(img, {
+    return new Response(buffer, {
       headers: {
         "Content-Type": "image/jpeg",
       },
