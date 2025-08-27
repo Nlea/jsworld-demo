@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { GoogleGenAI } from "@google/genai";
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 
 import { Layout } from "./layout";
@@ -149,12 +148,6 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
   deleteCookie(c, "auth-token");
   console.log();
   const { name, activity, artStyle, colorScheme } = c.req.valid("form");
-  const ai = new GoogleGenAI({
-    apiKey: c.env.GEMINI_API_KEY,
-    httpOptions: {
-      baseUrl: `https://gateway.ai.cloudflare.com/v1/${c.env.CLOUDFLARE_ACCOUNT_ID}/${c.env.GATEWAY_NAME}/google-ai-studio`,
-    },
-  });
 
   // create a prompt based on the user input
   let artStyplePrompt = "";
@@ -173,36 +166,78 @@ app.post("/api/generate", zValidator("form", userInputSchema), async (c) => {
     // Use AI to generate image
     const prompt = `A image of a goose actively ${activity}. The scene is composed with a foreground focus. The background reflects Berlin, complementing the main action without overpowering it. Full picture is in cartoon style rendered in ${artStyle}. ${artStyplePrompt}. The color palette focuses on ${colorScheme}.`;
 
-    const response = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash-image-preview",
-      contents: prompt,
-      config: {
-        responseModalities: ["image"],
+    // Use the correct model name from the docs with proper parameters
+    const response = await c.env.AI.run(
+      "@cf/leonardo/lucid-origin",
+      {
+        prompt,
+        width: 1024,
+        height: 1024,
+        steps: 25,
+        guidance: 4,
+        negative_prompt:
+          "bad image, low quality, signature, overexposed, jpeg artifacts, undefined, unclear, Noisy, grainy, oversaturated, overcontrasted",
       },
-    });
-
-    let objectKey = "";
-    let buffer;
-
-    for await (const chunk of response) {
-      if (
-        !chunk.candidates ||
-        !chunk.candidates[0].content ||
-        !chunk.candidates[0].content.parts
-      ) {
-        continue;
+      {
+        gateway: {
+          id: c.env.GATEWAY_NAME,
+          skipCache: true,
+        },
       }
-      if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-        const timestamp = new Date().getTime();
-        objectKey = `${name}-${timestamp}.png`;
-        const inlineData = chunk.candidates[0].content.parts[0].inlineData;
-        buffer = Buffer.from(inlineData.data || "", "base64");
-        await c.env.BUCKET.put(objectKey, buffer);
-        console.log(`Image saved as ${objectKey}`);
-      } else {
-        console.log(chunk.text);
+    );
+
+    // The response is an object with an image property
+    const base64Image = response.image;
+
+    function base64ToUint8Array(base64: string) {
+      const binaryString = atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      return bytes;
     }
+
+    // Use the image property from the response
+    const buffer = base64ToUint8Array(base64Image);
+
+    // Remove old commented code
+    {
+      /**
+    const response = await c.env.AI.run("@cf/leonardo/phoenix-1.0", { prompt },{
+        gateway: {
+          id: c.env.GATEWAY_NAME,
+          skipCache: true,
+        },
+      });
+
+     
+    const reader = response.getReader();
+    let chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    // Concatenate chunks into a single Uint8Array
+    const buffer = new Uint8Array(
+      chunks.reduce((acc, curr) => acc + curr.length, 0)
+    );
+    let offset = 0;
+    for (const chunk of chunks) {
+      buffer.set(chunk, offset);
+      offset += chunk.length;
+    }
+    */
+    }
+
+    // Define objectKey before using it
+    const timestamp = new Date().getTime();
+    const objectKey = `${name}-${timestamp}.png`;
+
+    // Store the image in R2
+    await c.env.BUCKET.put(objectKey, buffer);
 
     // Insert into database and get the ID
     await c.env.DB.prepare(
